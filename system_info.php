@@ -21,8 +21,45 @@ function system_info()
         }
     }
 
-    function get_server_memory_usage()
-    {
+  function get_server_memory_usage()
+{
+    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        // Windows system
+        $output = array();
+        exec('wmic OS get TotalVisibleMemorySize, FreePhysicalMemory /Value', $output);
+
+        $total_memory = null;
+        $free_memory = null;
+
+        foreach ($output as $line) {
+            if (strpos($line, 'TotalVisibleMemorySize') !== false) {
+                $total_memory = intval(preg_replace('/[^0-9]/', '', $line));
+            } elseif (strpos($line, 'FreePhysicalMemory') !== false) {
+                $free_memory = intval(preg_replace('/[^0-9]/', '', $line));
+            }
+
+            if ($total_memory !== null && $free_memory !== null) {
+                break;
+            }
+        }
+
+        if ($total_memory !== null && $free_memory !== null) {
+            $total_memory = round($total_memory / 1024);
+            $free_memory = round($free_memory / 1024);
+            $used_memory = $total_memory - $free_memory;
+            $memory_usage_percentage = round($used_memory / $total_memory * 100);
+
+            $memory_usage = [
+                'total' => $total_memory,
+                'free' => $free_memory,
+                'used' => $used_memory,
+                'used_percentage' => round($memory_usage_percentage),
+            ];
+
+            return $memory_usage;
+        }
+    } else {
+        // Linux system
         $free = shell_exec('free -m');
         $free = (string) trim($free);
         $free_arr = explode("\n", $free);
@@ -45,6 +82,8 @@ function system_info()
         return $memory_usage;
     }
 
+    return null;
+}
     function getSystemInfo()
 {
     $memory_usage = get_server_memory_usage();
@@ -75,7 +114,77 @@ function system_info()
 
     return $systemInfo;
 }
+//Lets get the storage usege
+function get_disk_usage()
+{
+    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        // Windows system
+        $output = [];
+        exec('wmic logicaldisk where "DeviceID=\'C:\'" get Size,FreeSpace /format:list', $output);
 
+        if (!empty($output)) {
+            $total_disk = 0;
+            $free_disk = 0;
+
+            foreach ($output as $line) {
+                if (strpos($line, 'Size=') === 0) {
+                    $total_disk = intval(substr($line, 5));
+                } elseif (strpos($line, 'FreeSpace=') === 0) {
+                    $free_disk = intval(substr($line, 10));
+                }
+            }
+
+            $used_disk = $total_disk - $free_disk;
+            $disk_usage_percentage = round(($used_disk / $total_disk) * 100, 2);
+
+            $disk_usage = [
+                'total' => format_bytes($total_disk),
+                'used' => format_bytes($used_disk),
+                'free' => format_bytes($free_disk),
+                'used_percentage' => $disk_usage_percentage . '%',
+            ];
+
+            return $disk_usage;
+        }
+    } else {
+        // Linux system
+        $disk = shell_exec('df / --output=size,used,avail,pcent --block-size=1');
+        $disk = (string) trim($disk);
+        $disk_arr = explode("\n", $disk);
+        $disk = explode(" ", preg_replace('/\s+/', ' ', $disk_arr[1]));
+        $disk = array_filter($disk);
+        $disk = array_merge($disk);
+
+        $total_disk = $disk[0];
+        $used_disk = $disk[1];
+        $free_disk = $disk[2];
+        $disk_usage_percentage = $disk[3];
+
+        $disk_usage = [
+            'total' => format_bytes($total_disk),
+            'used' => format_bytes($used_disk),
+            'free' => format_bytes($free_disk),
+            'used_percentage' => $disk_usage_percentage,
+        ];
+
+        return $disk_usage;
+    }
+
+    return null;
+}
+
+function format_bytes($bytes, $precision = 2)
+{
+    $units = ['B', 'KB', 'MB', 'GB'];
+
+    $bytes = max($bytes, 0);
+    $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+    $pow = min($pow, count($units) - 1);
+
+    $bytes /= pow(1024, $pow);
+
+    return round($bytes, $precision) . ' ' . $units[$pow];
+}
 function generateServiceTable() {
     function check_service($service_name) {
         if (empty($service_name)) {
@@ -108,6 +217,7 @@ function generateServiceTable() {
     $systemInfo = getSystemInfo();
 
     $ui->assign('systemInfo', $systemInfo);
+    $ui->assign('disk_usage', get_disk_usage());
     $ui->assign('memory_usage', get_server_memory_usage());
 	$ui->assign('serviceTable', generateServiceTable());
 

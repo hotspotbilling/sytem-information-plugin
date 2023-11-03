@@ -29,10 +29,19 @@
 		<tr>
             <th>Memory:</th>
 			<th>
-			<p>Total Memory: {$memory_usage.total} KB</p>
-            <p>Free Memory: {$memory_usage.free} KB</p>
-            <p>Used Memory: {$memory_usage.used} KB</p>
+			<p>Total Memory: {$memory_usage.total} MB</p>
+            <p>Free Memory: {$memory_usage.free} MB</p>
+            <p>Used Memory: {$memory_usage.used} MB</p>
 			<p>Memory Usage: {$memory_usage.used_percentage}%</p>
+			</th>
+        </tr>
+		<tr>
+            <th>Storage:</th>
+			<th>
+			<p>Total: {$disk_usage['total']}</p>
+            <p>Total: {$disk_usage['total']}</p>
+            <p>Free: {$disk_usage['free']}</p>
+           <p>Usage Percentage: {$disk_usage['used_percentage']}</p>   
 			</th>
         </tr>
     </table>	
