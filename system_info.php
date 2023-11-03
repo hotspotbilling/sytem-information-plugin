@@ -109,6 +109,7 @@ function system_info()
         'Remote Port' => $_SERVER['REMOTE_PORT'],
         'Database Server' => $serverInfo,
         'Database Name' => $databaseName,
+		'System Time' => date("F j, Y, g:i a"),
         // Add more system information here
     ];
 
