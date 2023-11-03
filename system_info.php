@@ -10,17 +10,6 @@ function system_info()
     $admin = Admin::_info();
     $ui->assign('_admin', $admin);
 
-    function checkRadiusServer($host, $port, $timeout = 1)
-    {
-        $fp = @fsockopen($host, $port, $errno, $errstr, $timeout);
-        if ($fp) {
-            fclose($fp);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
   function get_server_memory_usage()
 {
     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
@@ -109,7 +98,7 @@ function system_info()
         'Remote Port' => $_SERVER['REMOTE_PORT'],
         'Database Server' => $serverInfo,
         'Database Name' => $databaseName,
-		'System Time' => date("F j, Y, g:i a"),
+		'System Time' => date("F j, Y g:i a"),
         // Add more system information here
     ];
 
