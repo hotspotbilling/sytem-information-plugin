@@ -197,7 +197,7 @@ function generateServiceTable() {
         return $result_code === 0;
     }
 
-    $services_to_check = array("FreeRADIUS", "MySQL", "Cron", "SSHd");
+    $services_to_check = array("FreeRADIUS", "MySQL", "MariaDB", "Cron", "SSHd");
 
     $table = array('title' => 'Service Status', 'rows' => array());
 
