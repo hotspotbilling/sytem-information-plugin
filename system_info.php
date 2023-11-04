@@ -9,7 +9,24 @@ function system_info()
     $ui->assign('_system_menu', 'settings');
     $admin = Admin::_info();
     $ui->assign('_admin', $admin);
+	
+	if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reload']) && $_POST['reload'] === 'true') {
+    $output = array();
+    $retcode = 0;
+    
+    $os = strtoupper(PHP_OS);
 
+    if (strpos($os, 'WIN') === 0) {
+        // Windows OS
+        exec('net stop freeradius', $output, $retcode);
+        exec('net start freeradius', $output, $retcode);
+    } else {
+        // Linux OS
+        exec('sudo systemctl restart freeradius.service 2>&1', $output, $retcode);
+    }
+    $ui->assign('output', $output);
+    $ui->assign('returnCode', $retcode);
+}
   function get_server_memory_usage()
 {
     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
