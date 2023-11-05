@@ -9,24 +9,7 @@ function system_info()
     $ui->assign('_system_menu', 'settings');
     $admin = Admin::_info();
     $ui->assign('_admin', $admin);
-	
-	if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reload']) && $_POST['reload'] === 'true') {
-    $output = array();
-    $retcode = 0;
-    
-    $os = strtoupper(PHP_OS);
 
-    if (strpos($os, 'WIN') === 0) {
-        // Windows OS
-        exec('net stop freeradius', $output, $retcode);
-        exec('net start freeradius', $output, $retcode);
-    } else {
-        // Linux OS
-        exec('sudo systemctl restart freeradius.service 2>&1', $output, $retcode);
-    }
-    $ui->assign('output', $output);
-    $ui->assign('returnCode', $retcode);
-}
   function get_server_memory_usage()
 {
     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
@@ -192,20 +175,35 @@ function format_bytes($bytes, $precision = 2)
 
     return round($bytes, $precision) . ' ' . $units[$pow];
 }
-function generateServiceTable() {
-    function check_service($service_name) {
+function generateServiceTable()
+{
+    function check_service($service_name)
+    {
         if (empty($service_name)) {
             return false;
         }
 
-        $command = sprintf("pgrep %s", escapeshellarg($service_name));
-        exec($command, $output, $result_code);
-        return $result_code === 0;
+        $os = strtoupper(PHP_OS);
+
+        if (strpos($os, 'WIN') === 0) {
+            // Windows OS
+            $command = sprintf('sc query "%s" | findstr RUNNING', $service_name);
+            exec($command, $output, $result_code);
+            return $result_code === 0 || !empty($output);
+        } else {
+            // Linux OS
+            $command = sprintf("pgrep %s", escapeshellarg($service_name));
+            exec($command, $output, $result_code);
+            return $result_code === 0;
+        }
     }
 
     $services_to_check = array("FreeRADIUS", "MySQL", "MariaDB", "Cron", "SSHd");
 
-    $table = array('title' => 'Service Status', 'rows' => array());
+    $table = array(
+        'title' => 'Service Status',
+        'rows' => array()
+    );
 
     foreach ($services_to_check as $service_name) {
         $running = check_service(strtolower($service_name));
@@ -213,7 +211,6 @@ function generateServiceTable() {
         $label = ($running) ? "running" : "not running";
 
         $value = sprintf('<small class="%s">%s</small>', $class, $label);
-		
 
         $table['rows'][] = array($service_name, $value);
     }
