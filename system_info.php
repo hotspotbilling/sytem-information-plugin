@@ -108,6 +108,7 @@ function system_info()
     $systemInfo = [
         'Server Name' => $serverName,
         'Operating System' => php_uname('s'),
+		'System Distro' => getSystemDistro(),
         'PHP Version' => phpversion(),
         'Server Software' => $_SERVER['SERVER_SOFTWARE'],
         'Server IP Address' => $_SERVER['SERVER_ADDR'],
@@ -194,6 +195,56 @@ function format_bytes($bytes, $precision = 2)
     $bytes /= pow(1024, $pow);
 
     return round($bytes, $precision) . ' ' . $units[$pow];
+}
+function getSystemDistro()
+{
+    $distro = '';
+
+    // Lets retrieve the system distribution based on the operating system
+    if (strtoupper(substr(PHP_OS, 0, 3)) === 'LIN') {
+        $distro = shell_exec('lsb_release -d');
+        if ($distro) {
+            $distro = trim(substr($distro, strpos($distro, ':') + 1));
+        }
+    } elseif (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        $distro = getWindowsVersion();
+    }
+
+    // We can add more conditions for different operating systems if needed but only Windows and Linux for now
+
+    return $distro;
+}
+
+function getWindowsVersion()
+{
+    $version = '';
+
+    if (function_exists('shell_exec')) {
+        
+        $output = shell_exec('ver');
+        if ($output) {
+            $lines = explode("\n", $output);
+            if (isset($lines[0])) {
+                $version = trim($lines[0]);
+            }
+        }
+    }
+
+    if (empty($version) && function_exists('php_uname')) {
+		
+        $version = php_uname('v');
+    }
+
+    if (empty($version)) {
+		
+        if (isset($_SERVER['SERVER_SOFTWARE'])) {
+            $version = $_SERVER['SERVER_SOFTWARE'];
+        } elseif (isset($_SERVER['WINDIR'])) {
+            $version = $_SERVER['WINDIR'];
+        }
+    }
+
+    return $version;
 }
 function generateServiceTable()
 {
