@@ -195,20 +195,35 @@ function format_bytes($bytes, $precision = 2)
 
     return round($bytes, $precision) . ' ' . $units[$pow];
 }
-function generateServiceTable() {
-    function check_service($service_name) {
+function generateServiceTable()
+{
+    function check_service($service_name)
+    {
         if (empty($service_name)) {
             return false;
         }
 
-        $command = sprintf("pgrep %s", escapeshellarg($service_name));
-        exec($command, $output, $result_code);
-        return $result_code === 0;
+        $os = strtoupper(PHP_OS);
+
+        if (strpos($os, 'WIN') === 0) {
+            // Windows OS
+            $command = sprintf('sc query "%s" | findstr RUNNING', $service_name);
+            exec($command, $output, $result_code);
+            return $result_code === 0 || !empty($output);
+        } else {
+            // Linux OS
+            $command = sprintf("pgrep %s", escapeshellarg($service_name));
+            exec($command, $output, $result_code);
+            return $result_code === 0;
+        }
     }
 
     $services_to_check = array("FreeRADIUS", "MySQL", "MariaDB", "Cron", "SSHd");
 
-    $table = array('title' => 'Service Status', 'rows' => array());
+    $table = array(
+        'title' => 'Service Status',
+        'rows' => array()
+    );
 
     foreach ($services_to_check as $service_name) {
         $running = check_service(strtolower($service_name));
@@ -216,7 +231,6 @@ function generateServiceTable() {
         $label = ($running) ? "running" : "not running";
 
         $value = sprintf('<small class="%s">%s</small>', $class, $label);
-		
 
         $table['rows'][] = array($service_name, $value);
     }
