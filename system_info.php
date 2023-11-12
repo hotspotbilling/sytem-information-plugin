@@ -9,11 +9,11 @@ function system_info()
     $ui->assign('_system_menu', 'settings');
     $admin = Admin::_info();
     $ui->assign('_admin', $admin);
-	
+
 	if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reload']) && $_POST['reload'] === 'true') {
     $output = array();
     $retcode = 0;
-    
+
     $os = strtoupper(PHP_OS);
 
     if (strpos($os, 'WIN') === 0) {
@@ -97,7 +97,7 @@ function system_info()
     $db = ORM::getDb();
     $serverInfo = $db->getAttribute(PDO::ATTR_SERVER_VERSION);
     $databaseName = $db->query('SELECT DATABASE()')->fetchColumn();
-    $serverName = gethostname();	
+    $serverName = gethostname();
     $shellExecEnabled = function_exists('shell_exec');
 
     // Fallback: Let's use $_SERVER['SERVER_NAME'] if gethostname() is not available
@@ -119,7 +119,7 @@ function system_info()
         'Database Name' => $databaseName,
 		'System Time' => date("F j, Y g:i a"),
 		'Shell Exec Enabled' => $shellExecEnabled ? 'Yes' : 'No',
-		
+
         // Add more system information here
     ];
 
@@ -184,7 +184,7 @@ function get_disk_usage()
     return null;
 }
 
-function format_bytes($bytes, $precision = 2)
+function format_bytes_system($bytes, $precision = 2)
 {
     $units = ['B', 'KB', 'MB', 'GB'];
 
@@ -220,7 +220,7 @@ function getWindowsVersion()
     $version = '';
 
     if (function_exists('shell_exec')) {
-        
+
         $output = shell_exec('ver');
         if ($output) {
             $lines = explode("\n", $output);
@@ -231,12 +231,12 @@ function getWindowsVersion()
     }
 
     if (empty($version) && function_exists('php_uname')) {
-		
+
         $version = php_uname('v');
     }
 
     if (empty($version)) {
-		
+
         if (isset($_SERVER['SERVER_SOFTWARE'])) {
             $version = $_SERVER['SERVER_SOFTWARE'];
         } elseif (isset($_SERVER['WINDIR'])) {
