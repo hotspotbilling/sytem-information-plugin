@@ -27,8 +27,9 @@ function system_info()
     $ui->assign('output', $output);
     $ui->assign('returnCode', $retcode);
 }
-  function get_server_memory_usage()
-{
+
+  function system_info_get_server_memory_usage()
+  {
     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
         // Windows system
         $output = array();
@@ -90,9 +91,9 @@ function system_info()
 
     return null;
 }
-    function getSystemInfo()
+    function system_info_getSystemInfo()
 {
-    $memory_usage = get_server_memory_usage();
+    $memory_usage = system_info_get_server_memory_usage();
 
     $db = ORM::getDb();
     $serverInfo = $db->getAttribute(PDO::ATTR_SERVER_VERSION);
@@ -108,7 +109,7 @@ function system_info()
     $systemInfo = [
         'Server Name' => $serverName,
         'Operating System' => php_uname('s'),
-		'System Distro' => getSystemDistro(),
+		'System Distro' => system_info_getSystemDistro(),
         'PHP Version' => phpversion(),
         'Server Software' => $_SERVER['SERVER_SOFTWARE'],
         'Server IP Address' => $_SERVER['SERVER_ADDR'],
@@ -126,7 +127,7 @@ function system_info()
     return $systemInfo;
 }
 //Lets get the storage usege
-function get_disk_usage()
+function system_info_get_disk_usage()
 {
     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
         // Windows system
@@ -149,9 +150,9 @@ function get_disk_usage()
             $disk_usage_percentage = round(($used_disk / $total_disk) * 100, 2);
 
             $disk_usage = [
-                'total' => format_bytes($total_disk),
-                'used' => format_bytes($used_disk),
-                'free' => format_bytes($free_disk),
+                'total' => system_info_format_bytes($total_disk),
+                'used' => system_info_format_bytes($used_disk),
+                'free' => system_info_format_bytes($free_disk),
                 'used_percentage' => $disk_usage_percentage . '%',
             ];
 
@@ -172,9 +173,9 @@ function get_disk_usage()
         $disk_usage_percentage = $disk[3];
 
         $disk_usage = [
-            'total' => format_bytes($total_disk),
-            'used' => format_bytes($used_disk),
-            'free' => format_bytes($free_disk),
+            'total' => system_info_format_bytes($total_disk),
+            'used' => system_info_format_bytes($used_disk),
+            'free' => system_info_format_bytes($free_disk),
             'used_percentage' => $disk_usage_percentage,
         ];
 
@@ -184,9 +185,9 @@ function get_disk_usage()
     return null;
 }
 
-function format_bytes_system($bytes, $precision = 2)
+function system_info_format_bytes($bytes, $precision = 2)
 {
-    $units = ['B', 'KB', 'MB', 'GB'];
+    $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 
     $bytes = max($bytes, 0);
     $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
@@ -196,7 +197,8 @@ function format_bytes_system($bytes, $precision = 2)
 
     return round($bytes, $precision) . ' ' . $units[$pow];
 }
-function getSystemDistro()
+
+function system_info_getSystemDistro()
 {
     $distro = '';
 
@@ -207,7 +209,7 @@ function getSystemDistro()
             $distro = trim(substr($distro, strpos($distro, ':') + 1));
         }
     } elseif (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-        $distro = getWindowsVersion();
+        $distro = system_info_getWindowsVersion();
     }
 
     // We can add more conditions for different operating systems if needed but only Windows and Linux for now
@@ -215,7 +217,7 @@ function getSystemDistro()
     return $distro;
 }
 
-function getWindowsVersion()
+function system_info_getWindowsVersion()
 {
     $version = '';
 
@@ -246,9 +248,9 @@ function getWindowsVersion()
 
     return $version;
 }
-function generateServiceTable()
+function system_info_generateServiceTable()
 {
-    function check_service($service_name)
+    function system_info_check_service($service_name)
     {
         if (empty($service_name)) {
             return false;
@@ -277,7 +279,7 @@ function generateServiceTable()
     );
 
     foreach ($services_to_check as $service_name) {
-        $running = check_service(strtolower($service_name));
+        $running = system_info_check_service(strtolower($service_name));
         $class = ($running) ? "label pull-right bg-green" : "label pull-right bg-red";
         $label = ($running) ? "running" : "not running";
 
@@ -289,12 +291,12 @@ function generateServiceTable()
     return $table;
 }
 
-    $systemInfo = getSystemInfo();
+    $systemInfo = system_info_getSystemInfo();
 
     $ui->assign('systemInfo', $systemInfo);
-    $ui->assign('disk_usage', get_disk_usage());
-    $ui->assign('memory_usage', get_server_memory_usage());
-	$ui->assign('serviceTable', generateServiceTable());
+    $ui->assign('disk_usage', system_info_get_disk_usage());
+    $ui->assign('memory_usage', system_info_get_server_memory_usage());
+	$ui->assign('serviceTable', system_info_generateServiceTable());
 
     // Display the template
     $ui->display('system_info.tpl');
