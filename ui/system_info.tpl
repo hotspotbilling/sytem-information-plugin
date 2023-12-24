@@ -19,7 +19,7 @@
         }
     </style>
     <table>
-        
+
 		{foreach $systemInfo as $key => $value}
         <tr>
             <th>{$key}</th>
@@ -41,7 +41,7 @@
 			<p>Total: {$disk_usage['total']}</p>
             <p>Total: {$disk_usage['total']}</p>
             <p>Free: {$disk_usage['free']}</p>
-           <p>Usage Percentage: {$disk_usage['used_percentage']}</p>   
+           <p>Usage Percentage: {$disk_usage['used_percentage']}</p>
 			</th>
         </tr>
     </table>
@@ -79,7 +79,7 @@
             </div>
         </div>
     </div>
-</div>	
+</div>
 {if $output != ''} <div class="panel panel-primary panel-hovered panel-stacked mb30">
         <div class="panel-heading">Results</div>
         <div class="panel-body">
@@ -94,5 +94,11 @@
       </div>
     </div> {/if}
 
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            var portalLink = "https://github.com/focuslinkstech";
+            $('#version').html('System Info Plugin by: <a href="' + portalLink + '">Focuslinks Tech</a>');
+        });
+    </script>
 
 {include file="sections/footer.tpl"}
