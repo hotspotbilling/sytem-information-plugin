@@ -91,10 +91,12 @@ function system_info()
 
     return null;
 }
-    function system_info_getSystemInfo()
+
+function system_info_getSystemInfo()
 {
     $memory_usage = system_info_get_server_memory_usage();
 
+    // Get the Idiorm ORM instance
     $db = ORM::getDb();
     $serverInfo = $db->getAttribute(PDO::ATTR_SERVER_VERSION);
     $databaseName = $db->query('SELECT DATABASE()')->fetchColumn();
@@ -106,10 +108,13 @@ function system_info()
         $serverName = $_SERVER['SERVER_NAME'];
     }
 
+    // Retrieve the current time from the database
+    $currentTime = $db->query('SELECT CURRENT_TIMESTAMP AS current_time_alias')->fetchColumn();
+
     $systemInfo = [
         'Server Name' => $serverName,
         'Operating System' => php_uname('s'),
-		'System Distro' => system_info_getSystemDistro(),
+        'System Distro' => system_info_getSystemDistro(),
         'PHP Version' => phpversion(),
         'Server Software' => $_SERVER['SERVER_SOFTWARE'],
         'Server IP Address' => $_SERVER['SERVER_ADDR'],
@@ -118,8 +123,9 @@ function system_info()
         'Remote Port' => $_SERVER['REMOTE_PORT'],
         'Database Server' => $serverInfo,
         'Database Name' => $databaseName,
-		'System Time' => date("F j, Y g:i a"),
-		'Shell Exec Enabled' => $shellExecEnabled ? 'Yes' : 'No',
+        'System Time' => date("F j, Y g:i a"),
+        'Database Time' => date("F j, Y g:i a", strtotime($currentTime)),
+        'Shell Exec Enabled' => $shellExecEnabled ? 'Yes' : 'No',
 
         // Add more system information here
     ];
@@ -296,7 +302,7 @@ function system_info_generateServiceTable()
     $ui->assign('systemInfo', $systemInfo);
     $ui->assign('disk_usage', system_info_get_disk_usage());
     $ui->assign('memory_usage', system_info_get_server_memory_usage());
-	$ui->assign('serviceTable', system_info_generateServiceTable());
+    $ui->assign('serviceTable', system_info_generateServiceTable());
 
     // Display the template
     $ui->display('system_info.tpl');
