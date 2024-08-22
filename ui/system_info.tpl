@@ -1,6 +1,6 @@
 {include file="sections/header.tpl"}
 
-<h3 align=""><u>Server Status and Information</u>:</h3>
+<h3 align=""><u>{Lang::T('Server Status and Information')}</u>:</h3>
     <style>
         /* CSS styles for the table */
         table {
@@ -27,21 +27,21 @@
         </tr>
         {/foreach}
 		<tr>
-            <th>Memory:</th>
+            <th>{Lang::T('Memory')}:</th>
 			<th>
-			<p>Total Memory: {$memory_usage.total} MB</p>
-            <p>Free Memory: {$memory_usage.free} MB</p>
-            <p>Used Memory: {$memory_usage.used} MB</p>
-			<p>Memory Usage: {$memory_usage.used_percentage}%</p>
+			<p>{Lang::T('Total Memory')}: {$memory_usage.total} MB</p>
+            <p>{Lang::T('Free Memory')}: {$memory_usage.free} MB</p>
+            <p>{Lang::T('Used Memory')}: {$memory_usage.used} MB</p>
+			<p>{Lang::T('Memory Usage')}: {$memory_usage.used_percentage}%</p>
 			</th>
         </tr>
 		<tr>
-            <th>Storage:</th>
+            <th>{Lang::T('Storage')}:</th>
 			<th>
-			<p>Total: {$disk_usage['total']}</p>
-            <p>Total: {$disk_usage['total']}</p>
-            <p>Free: {$disk_usage['free']}</p>
-           <p>Usage Percentage: {$disk_usage['used_percentage']}</p>
+			<p>{Lang::T('Total')}: {$disk_usage['total']}</p>
+            <p>{Lang::T('Total')}: {$disk_usage['total']}</p>
+            <p>{Lang::T('Free')}: {$disk_usage['free']}</p>
+           <p>{Lang::T('Usage Percentage')}: {$disk_usage['used_percentage']}</p>
 			</th>
         </tr>
     </table>
@@ -56,10 +56,10 @@
                    <input type="hidden" name="reload" value="true">
                     <button type="submit" class="btn btn-primary btn-xs" title="Reload FreeRadius Server"
                         onclick="return confirm('Are you sure you want to Reload FreeRadius Server?')"><span
-                            class="glyphicon glyphicon-refresh" aria-hidden="true"></span>Reload FreeRADIUS</button>
+                            class="glyphicon glyphicon-refresh" aria-hidden="true"></span>{Lang::T('Reload FreeRADIUS')}</button>
                 </form>
                </div>
-                Service Status:
+                {Lang::T('Service Status')}:
             </div>
             <div class="panel-body">
                 <div class="md-whiteframe-z1 mb20 text-center" style="padding: 15px">
@@ -81,13 +81,13 @@
     </div>
 </div>
 {if $output != ''} <div class="panel panel-primary panel-hovered panel-stacked mb30">
-        <div class="panel-heading">Results</div>
+        <div class="panel-heading">{Lang::T('Results')}</div>
         <div class="panel-body">
           <pre>
 		  {if $returnCode === 0}
-            <p>Freeradius service reload successfully!</p>
+            <p>{Lang::T('Freeradius service reload successfully')}!</p>
             {else}
-            <p>Freeradius service reload failed. Return code: {$returnCode} : {$output} </p>
+            <p>{Lang::T('Freeradius service reload failed. Return code')}: {$returnCode} : {$output} </p>
       	  {/if}
 		  </pre>
         </div>
